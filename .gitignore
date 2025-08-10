@@ -1,2 +1,5 @@
 # Developer
 .vscode/
+
+# Python
+backend/.venv/
