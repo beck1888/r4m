@@ -1,7 +1,7 @@
 ## Importing libs
 # Project imports
 from backend_helpers.urls import extract_youtube_id
-from backend_helpers.youtube import fetch_transcript
+from backend_helpers.youtube import fetch_transcript, get_yt_video_metadata
 # External dependencies
 from flask import Flask, request, jsonify # Web Server
 
@@ -27,6 +27,21 @@ def get_video_id():
 
     # Success, return the ID
     return jsonify(video_id=vid_id, url=url), 200
+
+# Endpoint for getting a video's metadata
+@app.get("/get-metadata")
+def get_metadata():
+    # Parse the url for the url param
+    url = request.args.get("url", type=str)
+    # No url given error handling
+    if not url:
+        return jsonify(error="Missing 'url' query parameter"), 400
+
+    # Do the request
+    metadata = get_yt_video_metadata(url)
+    
+    # Success, return transcript (assume it always works for now)
+    return jsonify(metadata), 200
 
 # Endpoint for getting a video's transcript
 @app.get("/fetch-transcript")
