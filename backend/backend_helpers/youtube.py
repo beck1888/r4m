@@ -14,14 +14,3 @@ def fetch_transcript(video_id: str) -> str:
     # If there is a transcript, re-assemble it into one string
     transcript = " ".join(snippet.text for snippet in fetched) # Extract just the string parts
     return transcript
-
-## Testing it
-def main():
-    actual_video_with_transcript = 'fHRS_NOs24w'
-    video_without_transcript = 'hvD8t7uzD7k'
-
-    t = fetch_transcript(video_without_transcript)
-    print(t)
-
-if __name__ == '__main__':
-    main()
