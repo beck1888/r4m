@@ -4,6 +4,15 @@ from urllib.parse import urlparse, parse_qs # Parse YT urls
 ## Functions
 # Get video id from URL with error handling
 def extract_youtube_id(url: str) -> str | None:
+    """
+    Extract the YouTube video ID from a URL or host-only string.
+
+    Args:
+        url (str): A YouTube URL or host-only path
+
+    Returns:
+        str or None: The extracted video ID if found, otherwise None.
+    """
     # Allow host-only inputs like "youtu.be/abc123"
     if "://" not in url:
         url = "https://" + url
