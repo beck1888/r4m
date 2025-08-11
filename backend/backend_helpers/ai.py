@@ -41,8 +41,8 @@ def summarize_transcript_with_openai_gpt(transcript, channel_name):
     client = OpenAI(api_key=__get_openai_api_key())
 
     summary = client.chat.completions.create(
-        model='gpt-5', # gpt-5 doesn't allow us to set a temp so don't use or it will error
-        # temperature=0.2, # Balance format and friendliness
+        model='gpt-4o-mini', # gpt-5 doesn't allow us to set a temp so don't use or it will error
+        temperature=0.2, # Balance format and friendliness
         messages=[{
             'role': 'system',
             'content': __get_summarizer_system_instructions(channel_name)
