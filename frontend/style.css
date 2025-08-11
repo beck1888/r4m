@@ -87,6 +87,10 @@ button:disabled {
   cursor: not-allowed;
 }
 
+hr {
+  margin: 40px 0; /* 40px above and below, 0 left/right */
+}
+
 .status {
   color: #333;
   margin: 8px 0 16px;
