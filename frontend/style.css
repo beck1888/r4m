@@ -15,5 +15,6 @@ button:hover { filter: brightness(1.05); }
 .card { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 12px; }
 .card h2 { margin: 0 0 8px; font-size: 18px; }
 
+#meta-fields { display: grid; gap: 6px; }
 .pre { white-space: pre-wrap; word-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.4; }
 .code { display: inline-block; padding: 4px 6px; background: #f3f3f3; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }

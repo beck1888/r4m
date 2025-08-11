@@ -1,5 +1,5 @@
-// Adjust if your frontend is not served by the same origin as Flask
-const BASE_URL = "http://127.0.0.1:5000"; // e.g. "http://127.0.0.1:5000" if needed
+// Set this if your API is on a different origin
+const BASE_URL = "http://127.0.0.1:5000";
 
 const $ = (q) => document.querySelector(q);
 const statusEl = $("#status");
@@ -7,6 +7,8 @@ const metadataEl = $("#metadata");
 const idEl = $("#video-id");
 const transcriptEl = $("#transcript");
 const summaryEl = $("#summary");
+const metaTitleEl = $("#meta-title");
+const metaChannelLinkEl = $("#meta-channel-link");
 
 function setStatus(msg) {
   statusEl.textContent = msg;
@@ -15,7 +17,7 @@ function setStatus(msg) {
 function pretty(obj) {
   try {
     return JSON.stringify(obj, null, 2);
-  } catch (_) {
+  } catch {
     return String(obj);
   }
 }
@@ -51,9 +53,17 @@ async function summarize(transcript, channelName) {
   return data.summary;
 }
 
+function applyMetadataFields(metadata) {
+  // Your API returns:
+  // { title, uploader, channel_url, ... }
+  metaTitleEl.textContent = metadata?.title || "Unknown";
+  metaChannelLinkEl.textContent = metadata?.uploader || "Unknown";
+  metaChannelLinkEl.href = metadata?.channel_url || "#";
+}
+
 function guessChannelName(metadata) {
-  // Best effort extract. Adjust if your metadata shape is different.
-  return metadata?.channelTitle || metadata?.channel_name || metadata?.uploader || "Unknown";
+  // For summarize step
+  return metadata?.uploader || "Unknown";
 }
 
 async function runPipeline(url) {
@@ -62,10 +72,14 @@ async function runPipeline(url) {
   idEl.textContent = "";
   transcriptEl.textContent = "";
   summaryEl.textContent = "";
+  metaTitleEl.textContent = "";
+  metaChannelLinkEl.textContent = "";
+  metaChannelLinkEl.removeAttribute("href");
 
   try {
     setStatus("Getting video details...");
     const metadata = await getMetadata(url);
+    applyMetadataFields(metadata);
     metadataEl.textContent = pretty(metadata);
 
     setStatus("Extracting video id...");
