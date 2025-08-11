@@ -2,16 +2,35 @@
 const BASE_URL = "http://127.0.0.1:5000";
 
 const $ = (q) => document.querySelector(q);
-const statusEl = $("#status");
-const metadataEl = $("#metadata");
-const idEl = $("#video-id");
-const transcriptEl = $("#transcript");
-const summaryEl = $("#summary");
-const metaTitleEl = $("#meta-title");
-const metaChannelLinkEl = $("#meta-channel-link");
 
-function setStatus(msg) {
-  statusEl.textContent = msg;
+// Screens
+const screenHome = $("#screen-home");
+const screenLoading = $("#screen-loading");
+const screenResults = $("#screen-results");
+
+// Loading UI
+const loadingStatusEl = $("#loading-status");
+const spinMetadata = $("#spin-metadata");
+const spinVideoId = $("#spin-videoid");
+const spinTranscript = $("#spin-transcript");
+const spinSummary = $("#spin-summary");
+
+// Results UI
+const resultThumb = $("#result-thumb");
+const resultTitleLink = $("#result-title-link");
+const resultTitleLinkText = $("#result-title-link-text");
+const resultChannelLink = $("#result-channel-link");
+const resultSummaryEl = $("#result-summary");
+const newSearchBtn = $("#new-search-btn");
+
+function showScreen(name) {
+  const map = { home: screenHome, loading: screenLoading, results: screenResults };
+  Object.values(map).forEach((el) => el && el.classList.add("hidden"));
+  map[name]?.classList.remove("hidden");
+}
+
+function setLoadingStatus(msg) {
+  loadingStatusEl.textContent = msg || "";
 }
 
 function pretty(obj) {
@@ -67,39 +86,83 @@ function guessChannelName(metadata) {
 }
 
 async function runPipeline(url) {
-  // Clear old outputs
-  metadataEl.textContent = "";
-  idEl.textContent = "";
-  transcriptEl.textContent = "";
-  summaryEl.textContent = "";
-  metaTitleEl.textContent = "";
-  metaChannelLinkEl.textContent = "";
-  metaChannelLinkEl.removeAttribute("href");
+  // Go to loading screen
+  showScreen("loading");
+  setLoadingStatus("Starting...");
+  // Reset spinners
+  [spinMetadata, spinVideoId, spinTranscript, spinSummary].forEach((el) => {
+    el.classList.remove("done", "error", "active");
+  });
+
+  let metadata, vid, transcript, summary;
 
   try {
-    setStatus("Getting video details...");
-    const metadata = await getMetadata(url);
-    applyMetadataFields(metadata);
-    metadataEl.textContent = pretty(metadata);
+  setLoadingStatus("Getting video details...");
+  spinMetadata.classList.add("active");
+  metadata = await getMetadata(url);
+  spinMetadata.classList.remove("active");
+  spinMetadata.classList.add("done");
 
-    setStatus("Extracting video id...");
-    const vid = await getVideoId(url);
-    idEl.textContent = vid;
+  setLoadingStatus("Extracting video id...");
+  spinVideoId.classList.add("active");
+  vid = await getVideoId(url);
+  spinVideoId.classList.remove("active");
+  spinVideoId.classList.add("done");
 
-    setStatus("Fetching transcript...");
-    const transcript = await getTranscript(vid);
-    transcriptEl.textContent = typeof transcript === "string" ? transcript : pretty(transcript);
+  setLoadingStatus("Fetching transcript...");
+  spinTranscript.classList.add("active");
+  transcript = await getTranscript(vid);
+  spinTranscript.classList.remove("active");
+  spinTranscript.classList.add("done");
 
     const channelName = guessChannelName(metadata);
-    setStatus(`Summarizing transcript for ${channelName}...`);
-    const summary = await summarize(transcript, channelName);
-    summaryEl.textContent = typeof summary === "string" ? summary : pretty(summary);
+  setLoadingStatus(`Summarizing transcript for ${channelName}...`);
+  spinSummary.classList.add("active");
+  summary = await summarize(transcript, channelName);
+  spinSummary.classList.remove("active");
+  spinSummary.classList.add("done");
 
-    setStatus("Done.");
+    // Populate results screen
+    populateResults({ url, metadata, vid, summary });
+    setLoadingStatus("Done.");
+    showScreen("results");
   } catch (err) {
     console.error(err);
-    setStatus(`Error: ${err.message}`);
+    setLoadingStatus(`Error: ${err.message}`);
+    // mark last active spinner as error
+    [spinMetadata, spinVideoId, spinTranscript, spinSummary]
+      .reverse()
+      .find((el) => {
+        if (!el.classList.contains("done")) {
+          el.classList.remove("active");
+          el.classList.add("error");
+          return true;
+        }
+        return false;
+      });
   }
+}
+
+function populateResults({ url, metadata, vid, summary }) {
+  // Thumbnail: https://img.youtube.com/vi/<id>/hqdefault.jpg
+  const thumbUrl = vid ? `https://img.youtube.com/vi/${encodeURIComponent(vid)}/hqdefault.jpg` : "";
+  if (thumbUrl) {
+    resultThumb.src = thumbUrl;
+  } else {
+    resultThumb.removeAttribute("src");
+  }
+
+  // Title and links
+  const videoLink = metadata?.webpage_url || url || "#";
+  resultTitleLink.href = videoLink;
+  resultTitleLinkText.href = videoLink;
+  resultTitleLinkText.textContent = metadata?.title || "Untitled";
+
+  resultChannelLink.href = metadata?.channel_url || metadata?.channel || metadata?.uploader_url || "#";
+  resultChannelLink.textContent = metadata?.uploader || metadata?.channel || "Unknown";
+
+  // Summary as plain text (do not render markdown)
+  resultSummaryEl.textContent = typeof summary === "string" ? summary : pretty(summary);
 }
 
 // Wire up the form
@@ -108,9 +171,23 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   const url = document.getElementById("url-input").value.trim();
   if (!url) {
-    setStatus("Please enter a URL.");
+    setLoadingStatus("Please enter a URL.");
     return;
   }
-  setStatus("Starting...");
   runPipeline(url);
+});
+
+// New search button
+newSearchBtn.addEventListener("click", () => {
+  // reset form and go back home
+  document.getElementById("url-input").value = "";
+  // clear results
+  resultThumb.removeAttribute("src");
+  resultTitleLink.href = "#";
+  resultTitleLinkText.textContent = "";
+  resultTitleLinkText.href = "#";
+  resultChannelLink.href = "#";
+  resultChannelLink.textContent = "";
+  resultSummaryEl.textContent = "";
+  showScreen("home");
 });

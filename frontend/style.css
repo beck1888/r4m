@@ -18,3 +18,42 @@ button:hover { filter: brightness(1.05); }
 #meta-fields { display: grid; gap: 6px; }
 .pre { white-space: pre-wrap; word-wrap: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.4; }
 .code { display: inline-block; padding: 4px 6px; background: #f3f3f3; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* New: screens */
+.screen { display: block; }
+.hidden { display: none; }
+
+/* Home */
+.home-form { display: flex; gap: 8px; align-items: center; }
+
+/* Loading screen */
+.loading-wrap { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 16px; }
+.progress-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.progress-list li { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px dashed #ddd; border-radius: 8px; background: #fafafa; }
+.muted { color: #666; margin: 0 0 12px; }
+
+/* Spinner */
+.spinner { width: 16px; height: 16px; border: 2px solid #bbb; border-top-color: #bbb; border-radius: 50%; display: inline-block; }
+.spinner.active { animation: spin 0.9s linear infinite; border-top-color: #111; }
+.spinner.done { animation: none; border-color: #3bb273; border-top-color: #3bb273; background: #3bb273; }
+.spinner.error { animation: none; border-color: #e55353; border-top-color: #e55353; background: #e55353; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Results screen layout: 30/70 */
+.results-grid { display: grid; grid-template-columns: 3fr 7fr; gap: 16px; }
+.results-left { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 12px; }
+.results-right { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 12px; }
+.results-actions { margin-top: 12px; }
+.results-right h2 { margin: 0 0 8px; font-size: 18px; }
+.thumb-wrap { width: 100%; overflow: hidden; border-radius: 8px; background: #000; }
+.thumb-wrap img { width: 100%; display: block; object-fit: cover; }
+.meta { margin-top: 10px; display: grid; gap: 4px; }
+.meta-title a { font-weight: 700; color: #111; text-decoration: none; }
+.meta-title a:hover { text-decoration: underline; }
+.meta-channel a { color: #0b5fff; text-decoration: none; }
+.meta-channel a:hover { text-decoration: underline; }
+.secondary { background: #fff; color: #222; }
+
+@media (max-width: 760px) {
+	.results-grid { grid-template-columns: 1fr; }
+}

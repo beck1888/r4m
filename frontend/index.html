@@ -7,40 +7,72 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="container">
-      <h1>YouTube Summarizer</h1>
+      <main class="container">
+        <h1>YouTube Summarizer</h1>
 
-      <form id="url-form">
-        <label for="url-input">YouTube URL</label>
-        <input id="url-input" name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." required />
-        <button id="run-btn" type="submit">Run</button>
-      </form>
+        <!-- Screen 1: Home -->
+        <section id="screen-home" class="screen">
+          <form id="url-form" class="home-form">
+            <label for="url-input">YouTube URL</label>
+            <input id="url-input" name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." required />
+            <button id="run-btn" type="submit">Run</button>
+          </form>
+        </section>
 
-      <section class="status" id="status"></section>
-
-      <section class="grid">
-        <div class="card">
-          <h2>Video Details</h2>
-          <div id="meta-fields">
-            <div><strong>Title:</strong> <span id="meta-title"></span></div>
-            <div><strong>Channel:</strong> <a id="meta-channel-link" href="#" target="_blank" rel="noopener noreferrer"></a></div>
+        <!-- Screen 2: Loading -->
+        <section id="screen-loading" class="screen hidden">
+          <div class="loading-wrap">
+            <p class="muted">Working on it. This can take a moment.</p>
+            <ul class="progress-list">
+              <li>
+                <span>1. Get video details</span>
+                <span id="spin-metadata" class="spinner" aria-hidden="true"></span>
+              </li>
+              <li>
+                <span>2. Extract video id</span>
+                <span id="spin-videoid" class="spinner" aria-hidden="true"></span>
+              </li>
+              <li>
+                <span>3. Fetch transcript</span>
+                <span id="spin-transcript" class="spinner" aria-hidden="true"></span>
+              </li>
+              <li>
+                <span>4. Summarize transcript</span>
+                <span id="spin-summary" class="spinner" aria-hidden="true"></span>
+              </li>
+            </ul>
+            <div id="loading-status" class="status" role="status"></div>
           </div>
-          <pre id="metadata" class="pre" style="margin-top:8px;"></pre>
-        </div>
-        <div class="card">
-          <h2>Video ID</h2>
-          <code id="video-id" class="code"></code>
-        </div>
-        <div class="card">
-          <h2>Transcript</h2>
-          <pre id="transcript" class="pre"></pre>
-        </div>
-        <div class="card">
-          <h2>Summary</h2>
-          <pre id="summary" class="pre"></pre>
-        </div>
-      </section>
-    </main>
+        </section>
+
+        <!-- Screen 3: Results -->
+        <section id="screen-results" class="screen hidden">
+          <div class="results-grid">
+            <aside class="results-left">
+              <div class="thumb-wrap">
+                <a id="result-title-link" href="#" target="_blank" rel="noopener noreferrer">
+                  <img id="result-thumb" alt="Video thumbnail" />
+                </a>
+              </div>
+              <div class="meta">
+                <div class="meta-title">
+                  <a id="result-title-link-text" href="#" target="_blank" rel="noopener noreferrer"></a>
+                </div>
+                <div class="meta-channel">
+                  <a id="result-channel-link" href="#" target="_blank" rel="noopener noreferrer"></a>
+                </div>
+              </div>
+            </aside>
+            <section class="results-right">
+              <h2>Summary</h2>
+              <pre id="result-summary" class="pre"></pre>
+            </section>
+          </div>
+          <div class="results-actions">
+            <button id="new-search-btn" type="button" class="secondary">New Search</button>
+          </div>
+        </section>
+      </main>
 
     <script src="script.js"></script>
   </body>
