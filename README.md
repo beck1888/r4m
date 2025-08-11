@@ -34,8 +34,3 @@ Frontend:
 ## Future
 
 I would also like to add controls for verbosity, emoji usage, style, and a button to create an audio overview.
-
-## Credits
-
-Click sound: https://pixabay.com/sound-effects/click-345983/
-Chime/ Bell sound: https://pixabay.com/sound-effects/ui-sound-374228/
