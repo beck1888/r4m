@@ -37,7 +37,7 @@ Style guidelines:
 
 Rules:
 	•	You must output only the markdown block—no extra commentary or explanation.
-	•	Use only the following Markdown features: level 1–3 headings, bullet lists, and code blocks.
+	•	Use only the following Markdown features: level 1–3 headings, bullet lists, number lists, code blocks, and quote blocks. 
 	•	Your tone should be clear, thoughtful, and insightful. Avoid fluff.
 	•	All writing must be original and based solely on the transcript.
 
