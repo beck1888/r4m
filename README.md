@@ -34,7 +34,3 @@ Frontend:
 ## Future
 
 I would also like to add controls for verbosity, emoji usage, style, and a button to create an audio overview.
-
-## Credits
-
-Thank you to Lottie Files for the loading animation: https://lottiefiles.com/free-animation/loading-animation-blue-VNMY2Tu4UQ
