@@ -1,58 +1,59 @@
 # R4M (Read for Me)
 
-R4M is an AI YouTube video summarizer. 
+R4M is an AI-powered YouTube video summarizer.
 
-## Install
+## Installation
 
-1. Clone from source
-```bash
-gh repo clone beck1888/r4m
-```
+1. **Clone the repository**
 
-2. Install the requirements for the backend in a virtual environment
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cd ..
-```
+   ```bash
+   gh repo clone beck1888/r4m
+   ```
 
-3. Create the secrets file
-```bash
-cd backend/backend_helpers
-touch .env.local
-```
+2. **Set up the backend**
 
-4. Add in your OpenAI API Key into the file
-```env
-OPENAI_API_KEY=(your key here)
-```
+   ```bash
+   cd backend
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-5. Go back to the backend file
-```bash
-cd ..
-```
+3. **Create the secrets file**
 
-6. Start the Flask server
-```python
-python3 app.py
-```
+   ```bash
+   cd backend_helpers
+   touch .env.local
+   ```
 
-7. Create a new terminal session
+4. **Add your OpenAI API key** to `.env.local`
 
-8. Go into the frontend folder and start the frontend server
-```bash
-cd frontend
-python3 -m http.server 5520
-```
+   ```env
+   OPENAI_API_KEY=your_api_key_here
+   ```
 
-9. Go to `localhost:5520` and enjoy your app!
+5. **Start the backend server**
+
+   ```bash
+   cd ..
+   python3 app.py
+   ```
+
+6. **Start the frontend**
+   Open a new terminal and run:
+
+   ```bash
+   cd frontend
+   python3 -m http.server 5520
+   ```
+
+7. **Open the app**
+   Go to `http://localhost:5520` in your browser.
 
 ## Notes
 
-This is a work-in-progress and not polished. Feel free to poke at the code yourself. I may or may not self-host this on my own infra later, but then I'd need to setup proper webapp stuff. But yeah self hosting this is probably fine. Or just make a script to spin it up when you need it.
+This is still a work-in-progress. Feel free to tinker with the code. I might self-host it later, but for now it's meant for local use/ demo. You can also write a quick script to spin it up whenever you need it.
 
 ## Future ideas
 
-- Audio overview?
+* Audio summaries
