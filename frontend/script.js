@@ -309,6 +309,129 @@ function pretty(obj) {
   }
 }
 
+// Minimal Markdown renderer supporting:
+// - Headings (#, ##, ###)
+// - Unordered lists (-, *, +)
+// - Ordered lists (1.)
+// - Blockquotes (> ...)
+// - Fenced code blocks ```
+// - Inline code `code` (basic)
+// - Paragraphs
+function renderMarkdown(md) {
+  if (typeof md !== "string") return "";
+
+  // Normalize line endings
+  md = md.replace(/\r\n?/g, "\n");
+
+  // Escape HTML to avoid XSS, we'll allow only the tags we emit
+  const esc = (s) => s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+  // Handle fenced code blocks first
+  const codeBlocks = [];
+  md = md.replace(/```([\s\S]*?)```/g, (_, code) => {
+    const placeholder = `__CODEBLOCK_${codeBlocks.length}__`;
+    codeBlocks.push(`<pre class="code"><code>${esc(code.trimEnd())}</code></pre>`);
+    return placeholder;
+  });
+
+  const lines = md.split("\n");
+  const out = [];
+  let i = 0;
+  let inUl = false;
+  let inOl = false;
+  let inBlockquote = false;
+
+  const closeLists = () => {
+    if (inUl) { out.push("</ul>"); inUl = false; }
+    if (inOl) { out.push("</ol>"); inOl = false; }
+  };
+  const closeBlockquote = () => {
+    if (inBlockquote) { out.push("</blockquote>"); inBlockquote = false; }
+  };
+
+  while (i < lines.length) {
+    let line = lines[i];
+
+    // Restore fenced code placeholders within lines as block-level later (we'll keep placeholders here)
+
+    // Heading
+    let m;
+    if ((m = line.match(/^###\s+(.*)$/))) {
+      closeLists(); closeBlockquote();
+      out.push(`<h3>${esc(m[1])}</h3>`);
+      i++; continue;
+    }
+    if ((m = line.match(/^##\s+(.*)$/))) {
+      closeLists(); closeBlockquote();
+      out.push(`<h2>${esc(m[1])}</h2>`);
+      i++; continue;
+    }
+    if ((m = line.match(/^#\s+(.*)$/))) {
+      closeLists(); closeBlockquote();
+      out.push(`<h1>${esc(m[1])}</h1>`);
+      i++; continue;
+    }
+
+    // Blockquote
+    if ((m = line.match(/^>\s?(.*)$/))) {
+      closeLists();
+      if (!inBlockquote) { out.push("<blockquote>"); inBlockquote = true; }
+      out.push(`<p>${esc(m[1])}</p>`);
+      i++; continue;
+    } else {
+      closeBlockquote();
+    }
+
+    // Unordered list item
+    if ((m = line.match(/^\s*[-*+]\s+(.*)$/))) {
+      closeBlockquote();
+      if (!inUl) { out.push("<ul>"); inUl = true; }
+      out.push(`<li>${esc(m[1])}</li>`);
+      i++; continue;
+    }
+
+    // Ordered list item
+    if ((m = line.match(/^\s*\d+\.\s+(.*)$/))) {
+      closeBlockquote();
+      if (!inOl) { out.push("<ol>"); inOl = true; }
+      out.push(`<li>${esc(m[1])}</li>`);
+      i++; continue;
+    }
+
+    // Blank line closes lists
+    if (/^\s*$/.test(line)) {
+      closeLists();
+      closeBlockquote();
+      i++; continue;
+    }
+
+    // Paragraph (with inline code)
+    closeLists();
+    closeBlockquote();
+    const withInline = esc(line).replace(/`([^`]+)`/g, '<code>$1</code>');
+    out.push(`<p>${withInline}</p>`);
+    i++;
+  }
+
+  // Close any open blocks
+  closeLists();
+  closeBlockquote();
+
+  let html = out.join("\n");
+
+  // Re-insert code blocks
+  codeBlocks.forEach((block, idx) => {
+    html = html.replaceAll(`__CODEBLOCK_${idx}__`, block);
+  });
+
+  return html;
+}
+
 async function getMetadata(url) {
   const res = await fetch(`${BASE_URL}/get-metadata?url=${encodeURIComponent(url)}`);
   if (!res.ok) throw new Error(`get-metadata failed (${res.status})`);
@@ -448,8 +571,9 @@ function populateResults({ url, metadata, vid, summary }) {
   resultChannelLink.href = metadata?.channel_url || metadata?.channel || metadata?.uploader_url || "#";
   resultChannelLink.textContent = metadata?.uploader || metadata?.channel || "Unknown";
 
-  // Summary as plain text (do not render markdown)
-  resultSummaryEl.textContent = typeof summary === "string" ? summary : pretty(summary);
+  // Render Markdown to HTML
+  const md = typeof summary === "string" ? summary : pretty(summary);
+  resultSummaryEl.innerHTML = renderMarkdown(md);
 }
 
 // Wire up the form

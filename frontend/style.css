@@ -128,6 +128,45 @@ hr {
   word-wrap: break-word;
 }
 
+/* Markdown-rendered summary styles */
+.md {
+  color: var(--text);
+  line-height: 1.55;
+}
+.md h1,
+.md h2,
+.md h3 {
+  margin: 16px 0 8px;
+}
+.md p {
+  margin: 8px 0;
+}
+.md ul,
+.md ol {
+  margin: 8px 0 8px 20px;
+}
+.md li {
+  margin: 4px 0;
+}
+.md blockquote {
+  border-left: 4px solid var(--borderDark);
+  color: var(--mutedText);
+  margin: 8px 0;
+  padding: 6px 10px;
+  background: #faf9f8;
+}
+.md pre.code,
+.md pre {
+  background: #f3f2f1;
+  border: 1px solid var(--border);
+  padding: 10px;
+  overflow: auto;
+}
+.md code {
+  background: #f3f2f1;
+  padding: 2px 4px;
+}
+
 .code {
   background: #f3f2f1;
   border-radius: 0;
