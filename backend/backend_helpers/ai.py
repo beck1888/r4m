@@ -54,9 +54,3 @@ def summarize_transcript_with_openai_gpt(transcript, channel_name):
     ).choices[0].message.content
 
     return summary
-
-def main():
-    print(summarize_transcript_with_openai_gpt('bla bla bla', 'thomas'))
-
-if __name__ == '__main__':
-    main()
