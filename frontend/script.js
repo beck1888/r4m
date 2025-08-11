@@ -34,7 +34,7 @@ const historyEmptyEl = $("#history-empty");
 const historyLoadMoreBtn = $("#history-load-more");
 
 // History pagination state
-const HISTORY_PAGE_SIZE = 5;
+const HISTORY_PAGE_SIZE = 2;
 let historyAllRows = [];
 let historyRenderedCount = 0;
 
