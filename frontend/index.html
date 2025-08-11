@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-      <main class="container">
-        <h1>YouTube Summarizer</h1>
+    <main class="container">
 
         <!-- Screen 1: Home -->
         <section id="screen-home" class="screen">
@@ -41,7 +40,6 @@
                 <span id="spin-summary" class="spinner" aria-hidden="true"></span>
               </li>
             </ul>
-            <div id="loading-status" class="status" role="status"></div>
           </div>
         </section>
 
@@ -64,12 +62,17 @@
               </div>
             </aside>
             <section class="results-right">
-              <h2>Summary</h2>
               <pre id="result-summary" class="pre"></pre>
             </section>
           </div>
-          <div class="results-actions">
-            <button id="new-search-btn" type="button" class="secondary">New Search</button>
+        </section>
+
+        <!-- Screen 4: Error -->
+        <section id="screen-error" class="screen hidden">
+          <div class="error-wrap">
+            <h2>Something went wrong</h2>
+            <p id="error-message" class="error-message"></p>
+            <pre id="error-details" class="pre error-details"></pre>
           </div>
         </section>
       </main>

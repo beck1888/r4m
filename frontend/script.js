@@ -7,6 +7,7 @@ const $ = (q) => document.querySelector(q);
 const screenHome = $("#screen-home");
 const screenLoading = $("#screen-loading");
 const screenResults = $("#screen-results");
+const screenError = $("#screen-error");
 
 // Loading UI
 const loadingStatusEl = $("#loading-status");
@@ -21,16 +22,19 @@ const resultTitleLink = $("#result-title-link");
 const resultTitleLinkText = $("#result-title-link-text");
 const resultChannelLink = $("#result-channel-link");
 const resultSummaryEl = $("#result-summary");
-const newSearchBtn = $("#new-search-btn");
+
+// Error UI
+const errorMessageEl = $("#error-message");
+const errorDetailsEl = $("#error-details");
 
 function showScreen(name) {
-  const map = { home: screenHome, loading: screenLoading, results: screenResults };
+  const map = { home: screenHome, loading: screenLoading, results: screenResults, error: screenError };
   Object.values(map).forEach((el) => el && el.classList.add("hidden"));
   map[name]?.classList.remove("hidden");
 }
 
 function setLoadingStatus(msg) {
-  loadingStatusEl.textContent = msg || "";
+  if (loadingStatusEl) loadingStatusEl.textContent = msg || "";
 }
 
 function pretty(obj) {
@@ -140,6 +144,12 @@ async function runPipeline(url) {
         }
         return false;
       });
+  // Show error screen with clear message and details
+  const userMsg = "We couldn’t complete the request. Please check the URL or try again later.";
+  errorMessageEl.textContent = userMsg;
+  const details = err && (err.stack || err.message || String(err));
+  errorDetailsEl.textContent = details;
+  showScreen("error");
   }
 }
 
@@ -177,17 +187,5 @@ form.addEventListener("submit", (e) => {
   runPipeline(url);
 });
 
-// New search button
-newSearchBtn.addEventListener("click", () => {
-  // reset form and go back home
-  document.getElementById("url-input").value = "";
-  // clear results
-  resultThumb.removeAttribute("src");
-  resultTitleLink.href = "#";
-  resultTitleLinkText.textContent = "";
-  resultTitleLinkText.href = "#";
-  resultChannelLink.href = "#";
-  resultChannelLink.textContent = "";
-  resultSummaryEl.textContent = "";
-  showScreen("home");
-});
+// Ensure home screen is visible by default
+showScreen("home");
