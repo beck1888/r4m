@@ -344,6 +344,11 @@ button:disabled {
   gap: 8px;
 }
 
+.history #history-load-more {
+  margin-top: 8px;
+  width: 100%;
+}
+
 .history-item {
   align-items: center;
   background: var(--cardBg);

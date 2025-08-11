@@ -31,6 +31,12 @@ const errorDetailsEl = $("#error-details");
 // History UI
 const historyListEl = $("#history-list");
 const historyEmptyEl = $("#history-empty");
+const historyLoadMoreBtn = $("#history-load-more");
+
+// History pagination state
+const HISTORY_PAGE_SIZE = 5;
+let historyAllRows = [];
+let historyRenderedCount = 0;
 
 // IndexedDB helpers
 const DB_NAME = "yt-summarizer-db";
@@ -119,18 +125,9 @@ function formatWhen(ts) {
   }
 }
 
-async function renderHistory() {
-  if (!historyListEl || !historyEmptyEl) return;
-  const rows = await dbGetAll();
-  historyListEl.innerHTML = "";
-  if (!rows.length) {
-    historyEmptyEl.classList.remove("hidden");
-    return;
-  }
-  historyEmptyEl.classList.add("hidden");
-  // sort newest first
-  rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-  for (const r of rows) {
+function appendHistoryItems(from, count) {
+  const slice = historyAllRows.slice(from, from + count);
+  for (const r of slice) {
     const div = document.createElement("div");
     div.className = "history-item";
     const thumb = document.createElement("img");
@@ -153,12 +150,40 @@ async function renderHistory() {
     div.appendChild(main);
     div.appendChild(time);
     div.addEventListener("click", () => {
-      // Populate results from stored entry
       populateResults({ url: r.url, metadata: r.metadata, vid: r.videoId, summary: r.summary });
       showScreen("results");
     });
     historyListEl.appendChild(div);
   }
+  historyRenderedCount += slice.length;
+  const hasMore = historyRenderedCount < historyAllRows.length;
+  if (historyLoadMoreBtn) {
+    if (hasMore) historyLoadMoreBtn.classList.remove("hidden");
+    else historyLoadMoreBtn.classList.add("hidden");
+  }
+}
+
+async function renderHistory() {
+  if (!historyListEl || !historyEmptyEl) return;
+  const rows = await dbGetAll();
+  // sort newest first
+  rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  historyAllRows = rows;
+  historyListEl.innerHTML = "";
+  historyRenderedCount = 0;
+  if (!rows.length) {
+    historyEmptyEl.classList.remove("hidden");
+    if (historyLoadMoreBtn) historyLoadMoreBtn.classList.add("hidden");
+    return;
+  }
+  historyEmptyEl.classList.add("hidden");
+  appendHistoryItems(0, HISTORY_PAGE_SIZE);
+}
+
+if (historyLoadMoreBtn) {
+  historyLoadMoreBtn.addEventListener("click", () => {
+    appendHistoryItems(historyRenderedCount, HISTORY_PAGE_SIZE);
+  });
 }
 
 function showScreen(name) {
