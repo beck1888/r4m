@@ -76,7 +76,44 @@ async function dbGetAll() {
 
 function formatWhen(ts) {
   try {
-    return new Date(ts).toLocaleString();
+    const t = typeof ts === "number" ? ts : Date.parse(ts);
+    if (!Number.isFinite(t)) return "";
+    const now = Date.now();
+    const diffMs = Math.max(0, now - t);
+    const s = diffMs / 1000;
+    const m = s / 60;
+    const h = m / 60;
+    const d = h / 24;
+    const w = d / 7;
+    const mo = d / 30; // approx months
+    const y = d / 365; // approx years
+
+    let value, unit;
+    if (y >= 1) {
+      value = Math.round(y);
+      unit = "year";
+    } else if (mo >= 1) {
+      value = Math.round(mo);
+      unit = "month";
+    } else if (w >= 1) {
+      value = Math.round(w);
+      unit = "week";
+    } else if (d >= 1) {
+      value = Math.round(d);
+      unit = "day";
+    } else if (h >= 1) {
+      value = Math.round(h);
+      unit = "hour";
+    } else if (m >= 1) {
+      value = Math.round(m);
+      unit = "minute";
+    } else {
+      value = Math.round(s);
+      unit = "second";
+    }
+
+    const plural = value === 1 ? "" : "s";
+    return `${value} ${unit}${plural} ago`;
   } catch {
     return "";
   }
