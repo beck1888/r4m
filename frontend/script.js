@@ -41,17 +41,34 @@ let historyRenderedCount = 0;
 // IndexedDB helpers
 const DB_NAME = "yt-summarizer-db";
 const DB_STORE = "summaries";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
+    req.onupgradeneeded = (event) => {
       const db = req.result;
+
+      // Ensure store exists
+      let store;
       if (!db.objectStoreNames.contains(DB_STORE)) {
-        const store = db.createObjectStore(DB_STORE, { keyPath: "id", autoIncrement: true });
-        store.createIndex("by_time", "createdAt");
+        store = db.createObjectStore(DB_STORE, { keyPath: "id", autoIncrement: true });
+      } else {
+        // When upgrading an existing DB, get the store from the upgrade transaction
+        store = event.target.transaction.objectStore(DB_STORE);
       }
+
+      // Helper to create indexes idempotently
+      const ensureIndex = (name, keyPath, options) => {
+        if (!store.indexNames.contains(name)) {
+          store.createIndex(name, keyPath, options);
+        }
+      };
+
+      // Existing + new indexes
+      ensureIndex("by_time", "createdAt");
+      ensureIndex("by_url", "url");
+      ensureIndex("by_videoId", "videoId");
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -78,6 +95,93 @@ async function dbGetAll() {
     req.onsuccess = () => resolve(req.result || []);
     req.onerror = () => reject(req.error);
   });
+}
+
+async function dbGetByUrl(url) {
+  if (!url) return null;
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readonly");
+    const store = tx.objectStore(DB_STORE);
+    let index;
+    try {
+      index = store.index("by_url");
+    } catch (_) {
+      // Fallback for older DBs without index
+      const reqAll = store.getAll();
+      reqAll.onsuccess = () => {
+        const all = reqAll.result || [];
+        const match = all
+          .filter((r) => r && r.url === url)
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0] || null;
+        resolve(match);
+      };
+      reqAll.onerror = () => reject(reqAll.error);
+      return;
+    }
+    const req = index.getAll(url);
+    req.onsuccess = () => {
+      const arr = req.result || [];
+      const latest = arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0] || null;
+      resolve(latest);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbFindByVideoId(videoId) {
+  if (!videoId) return null;
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readonly");
+    const store = tx.objectStore(DB_STORE);
+    let index;
+    try {
+      index = store.index("by_videoId");
+    } catch (_) {
+      const reqAll = store.getAll();
+      reqAll.onsuccess = () => {
+        const all = reqAll.result || [];
+        const match = all
+          .filter((r) => r && r.videoId === videoId)
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0] || null;
+        resolve(match);
+      };
+      reqAll.onerror = () => reject(reqAll.error);
+      return;
+    }
+    const req = index.getAll(videoId);
+    req.onsuccess = () => {
+      const arr = req.result || [];
+      const latest = arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0] || null;
+      resolve(latest);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function extractYouTubeId(raw) {
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.replace(/^www\./i, "").toLowerCase();
+    if (host === "youtu.be") {
+      const seg = u.pathname.split("/").filter(Boolean)[0];
+      if (seg) return seg;
+    }
+    if (host.endsWith("youtube.com")) {
+      if (u.pathname === "/watch") {
+        const v = u.searchParams.get("v");
+        if (v) return v;
+      }
+      const m = u.pathname.match(/^\/(shorts|embed)\/([^/?#]+)/i);
+      if (m) return m[2];
+    }
+  } catch (_) {
+    // ignore and try regex fallback
+  }
+  const rx = /(?:v=|\/)([0-9A-Za-z_-]{11})(?:[?&/#]|$)/;
+  const m = String(raw).match(rx);
+  return m ? m[1] : "";
 }
 
 function formatWhen(ts) {
@@ -349,13 +453,35 @@ function populateResults({ url, metadata, vid, summary }) {
 
 // Wire up the form
 const form = document.getElementById("url-form");
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const url = document.getElementById("url-input").value.trim();
   if (!url) {
     setLoadingStatus("Please enter a URL.");
     return;
   }
+
+  // 1) Try to find an exact URL match in cache
+  try {
+    let cached = await dbGetByUrl(url);
+    // 2) If not found, try by parsed video ID to catch alternate URL forms
+    if (!cached) {
+      const vid = extractYouTubeId(url);
+      if (vid) {
+        cached = await dbFindByVideoId(vid);
+      }
+    }
+
+    if (cached) {
+      populateResults({ url: cached.url, metadata: cached.metadata, vid: cached.videoId, summary: cached.summary });
+      showScreen("results");
+      return;
+    }
+  } catch (_) {
+    // On any cache error, fall back to pipeline
+  }
+
+  // Not cached, run full pipeline
   runPipeline(url);
 });
 
