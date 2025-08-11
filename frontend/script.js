@@ -15,55 +15,6 @@ const spinMetadata = $("#spin-metadata");
 const spinVideoId = $("#spin-videoid");
 const spinTranscript = $("#spin-transcript");
 const spinSummary = $("#spin-summary");
-const progressToggle = $("#progress-toggle");
-const progressDetails = $("#progress-details");
-const lottieContainer = $("#lottie-container");
-
-// Initialize Lottie animation
-let lottieAnimation = null;
-
-function initLottieAnimation() {
-  if (lottieAnimation) {
-    lottieAnimation.destroy();
-  }
-  
-  lottieAnimation = lottie.loadAnimation({
-    container: lottieContainer,
-    renderer: 'svg',
-    loop: true,
-    autoplay: false,
-    path: './assets/loading.json'
-  });
-}
-
-function startLoadingAnimation() {
-  if (lottieAnimation) {
-    lottieAnimation.play();
-  }
-}
-
-function stopLoadingAnimation() {
-  if (lottieAnimation) {
-    lottieAnimation.stop();
-  }
-}
-
-// Progress toggle functionality
-if (progressToggle && progressDetails) {
-  progressToggle.addEventListener("click", () => {
-    const isExpanded = progressToggle.classList.contains("expanded");
-    
-    if (isExpanded) {
-      progressToggle.classList.remove("expanded");
-      progressDetails.classList.add("hidden");
-      progressToggle.querySelector("span").textContent = "Show Progress Details";
-    } else {
-      progressToggle.classList.add("expanded");
-      progressDetails.classList.remove("hidden");
-      progressToggle.querySelector("span").textContent = "Hide Progress Details";
-    }
-  });
-}
 
 // Results UI
 const resultThumb = $("#result-thumb");
@@ -530,21 +481,10 @@ async function runPipeline(url) {
   showScreen("loading");
   setLoadingStatus("Starting...");
   
-  // Initialize and start Lottie animation
-  initLottieAnimation();
-  startLoadingAnimation();
-  
-  // Reset spinners and collapse progress details by default
+  // Reset spinners
   [spinMetadata, spinVideoId, spinTranscript, spinSummary].forEach((el) => {
     el.classList.remove("done", "error", "active");
   });
-  
-  // Reset progress toggle to collapsed state
-  if (progressToggle && progressDetails) {
-    progressToggle.classList.remove("expanded");
-    progressDetails.classList.add("hidden");
-    progressToggle.querySelector("span").textContent = "Show Progress Details";
-  }
 
   let metadata, vid, transcript, summary;
 
@@ -591,9 +531,6 @@ async function runPipeline(url) {
     }
     setLoadingStatus("Done.");
     
-    // Stop animation before switching screens
-    stopLoadingAnimation();
-    
     showScreen("results");
   } catch (err) {
     console.error(err);
@@ -610,9 +547,6 @@ async function runPipeline(url) {
         return false;
       });
       
-    // Stop animation on error
-    stopLoadingAnimation();
-    
   // Show error screen with clear message and details
   const userMsg = "We couldn’t complete the request. Please check the URL or try again later.";
   errorMessageEl.textContent = userMsg;
@@ -682,11 +616,6 @@ form.addEventListener("submit", async (e) => {
 // Ensure home screen is visible by default
 showScreen("home");
 renderHistory();
-
-// Initialize Lottie animation container on page load
-if (lottieContainer) {
-  initLottieAnimation();
-}
 
 // Printing: show summary only
 function triggerPrintSummary() {
