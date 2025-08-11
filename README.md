@@ -48,3 +48,11 @@ python3 -m http.server 5520
 ```
 
 9. Go to `localhost:5520` and enjoy your app!
+
+## Notes
+
+This is a work-in-progress and not polished. Feel free to poke at the code yourself. I may or may not self-host this on my own infra later, but then I'd need to setup proper webapp stuff. But yeah self hosting this is probably fine. Or just make a script to spin it up when you need it.
+
+## Future ideas
+
+- Audio overview?
