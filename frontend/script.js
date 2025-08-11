@@ -22,6 +22,7 @@ const resultTitleLink = $("#result-title-link");
 const resultTitleLinkText = $("#result-title-link-text");
 const resultChannelLink = $("#result-channel-link");
 const resultSummaryEl = $("#result-summary");
+const printBtn = $("#print-btn");
 
 // Error UI
 const errorMessageEl = $("#error-message");
@@ -189,3 +190,23 @@ form.addEventListener("submit", (e) => {
 
 // Ensure home screen is visible by default
 showScreen("home");
+
+// Printing: show summary only
+function triggerPrintSummary() {
+  if (!resultSummaryEl || screenResults.classList.contains("hidden")) return;
+  window.print();
+}
+
+if (printBtn) {
+  printBtn.addEventListener("click", triggerPrintSummary);
+}
+
+// Cmd/Ctrl + P to print summary
+window.addEventListener("keydown", (e) => {
+  const isMac = navigator.platform.toUpperCase().includes("MAC");
+  const isPrint = (isMac && e.metaKey && e.key.toLowerCase() === "p") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "p");
+  if (isPrint) {
+    e.preventDefault();
+    triggerPrintSummary();
+  }
+});

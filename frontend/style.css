@@ -62,3 +62,12 @@ button:hover { filter: brightness(1.05); }
 .error-wrap { background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 16px; }
 .error-message { color: #b00020; font-weight: 600; margin: 0 0 8px; }
 .error-details { background: #fff5f5; border: 1px solid #ffd6d6; border-radius: 8px; padding: 10px; }
+
+/* Print only the summary */
+@media print {
+	/* Hide everything by default */
+	body * { visibility: hidden !important; }
+	/* Show the summary block and its ancestors */
+	#result-summary, #result-summary * { visibility: visible !important; }
+	#result-summary { position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #000; border: 0; padding: 0; }
+}
