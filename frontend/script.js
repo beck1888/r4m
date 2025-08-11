@@ -630,8 +630,7 @@ if (printBtn) {
 // Home button returns to the home screen and refreshes history
 if (homeBtn) {
   homeBtn.addEventListener("click", () => {
-    showScreen("home");
-    renderHistory();
+    location.reload();
   });
 }
 
