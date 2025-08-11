@@ -89,7 +89,3 @@ def do_summarize():
     summary = summarize_transcript_with_openai_gpt(transcript=transcript, channel_name=channel_uploader)
 
     return jsonify(summary=summary)
-
-## Run the dev server
-if __name__ == "__main__":
-    app.run(debug=True)
