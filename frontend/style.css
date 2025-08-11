@@ -225,7 +225,15 @@ button:disabled {
 }
 
 .results-actions {
+  display: flex;
+  gap: 8px;
   margin-top: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.results-actions button {
+  flex: 1 1 0;
 }
 
 .results-right h2 {

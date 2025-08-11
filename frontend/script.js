@@ -23,6 +23,7 @@ const resultTitleLinkText = $("#result-title-link-text");
 const resultChannelLink = $("#result-channel-link");
 const resultSummaryEl = $("#result-summary");
 const printBtn = $("#print-btn");
+const homeBtn = $("#home-btn");
 
 // Error UI
 const errorMessageEl = $("#error-message");
@@ -497,6 +498,14 @@ function triggerPrintSummary() {
 
 if (printBtn) {
   printBtn.addEventListener("click", triggerPrintSummary);
+}
+
+// Home button returns to the home screen and refreshes history
+if (homeBtn) {
+  homeBtn.addEventListener("click", () => {
+    showScreen("home");
+    renderHistory();
+  });
 }
 
 // Cmd/Ctrl + P to print summary
