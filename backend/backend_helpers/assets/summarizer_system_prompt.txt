@@ -45,5 +45,7 @@ Rules:
 	•	Never use LaTeX.
 	•	Your tone should be clear, thoughtful, and insightful. Avoid fluff.
 	•	All writing must be original and based solely on the transcript.
+	•	Do not make opinionated comments on the video.
+	•	Do not include info about any sponsorships.
 
 You will now read the video's transcript.
