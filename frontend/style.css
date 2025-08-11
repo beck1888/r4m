@@ -71,3 +71,15 @@ button:hover { filter: brightness(1.05); }
 	#result-summary, #result-summary * { visibility: visible !important; }
 	#result-summary { position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #000; border: 0; padding: 0; }
 }
+
+/* History section */
+.history { margin-top: 16px; }
+.history-title { margin: 12px 0 8px; font-size: 18px; }
+.history-list { display: grid; gap: 8px; }
+.history-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center; padding: 8px; border: 1px solid #e6e6e6; border-radius: 8px; background: #fff; cursor: pointer; }
+.history-item:hover { background: #f7f7f7; }
+.history-item-thumb { width: 56px; height: 32px; object-fit: cover; border-radius: 4px; background: #000; }
+.history-item-main { display: grid; gap: 2px; }
+.history-item-title { font-weight: 600; color: #111; }
+.history-item-meta { font-size: 12px; color: #666; }
+.history-item-time { font-size: 12px; color: #777; }

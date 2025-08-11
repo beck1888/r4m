@@ -28,6 +28,102 @@ const printBtn = $("#print-btn");
 const errorMessageEl = $("#error-message");
 const errorDetailsEl = $("#error-details");
 
+// History UI
+const historyListEl = $("#history-list");
+const historyEmptyEl = $("#history-empty");
+
+// IndexedDB helpers
+const DB_NAME = "yt-summarizer-db";
+const DB_STORE = "summaries";
+const DB_VERSION = 1;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(DB_STORE)) {
+        const store = db.createObjectStore(DB_STORE, { keyPath: "id", autoIncrement: true });
+        store.createIndex("by_time", "createdAt");
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbAdd(entry) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readwrite");
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+    const store = tx.objectStore(DB_STORE);
+    store.add(entry);
+  });
+}
+
+async function dbGetAll() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readonly");
+    const store = tx.objectStore(DB_STORE);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function formatWhen(ts) {
+  try {
+    return new Date(ts).toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
+async function renderHistory() {
+  if (!historyListEl || !historyEmptyEl) return;
+  const rows = await dbGetAll();
+  historyListEl.innerHTML = "";
+  if (!rows.length) {
+    historyEmptyEl.classList.remove("hidden");
+    return;
+  }
+  historyEmptyEl.classList.add("hidden");
+  // sort newest first
+  rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  for (const r of rows) {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    const thumb = document.createElement("img");
+    thumb.className = "history-item-thumb";
+    if (r.videoId) thumb.src = `https://img.youtube.com/vi/${encodeURIComponent(r.videoId)}/hqdefault.jpg`;
+    const main = document.createElement("div");
+    main.className = "history-item-main";
+    const title = document.createElement("div");
+    title.className = "history-item-title";
+    title.textContent = r.metadata?.title || "Untitled";
+    const meta = document.createElement("div");
+    meta.className = "history-item-meta";
+    meta.textContent = r.metadata?.uploader || r.metadata?.channel || "Unknown";
+    const time = document.createElement("div");
+    time.className = "history-item-time";
+    time.textContent = formatWhen(r.createdAt);
+    main.appendChild(title);
+    main.appendChild(meta);
+    div.appendChild(thumb);
+    div.appendChild(main);
+    div.appendChild(time);
+    div.addEventListener("click", () => {
+      // Populate results from stored entry
+      populateResults({ url: r.url, metadata: r.metadata, vid: r.videoId, summary: r.summary });
+      showScreen("results");
+    });
+    historyListEl.appendChild(div);
+  }
+}
+
 function showScreen(name) {
   const map = { home: screenHome, loading: screenLoading, results: screenResults, error: screenError };
   Object.values(map).forEach((el) => el && el.classList.add("hidden"));
@@ -129,6 +225,19 @@ async function runPipeline(url) {
 
     // Populate results screen
     populateResults({ url, metadata, vid, summary });
+    // Save to history
+    try {
+      await dbAdd({
+        url,
+        videoId: vid,
+        metadata,
+        summary,
+        createdAt: Date.now()
+      });
+      renderHistory();
+    } catch (_) {
+      // non-fatal
+    }
     setLoadingStatus("Done.");
     showScreen("results");
   } catch (err) {
@@ -190,6 +299,7 @@ form.addEventListener("submit", (e) => {
 
 // Ensure home screen is visible by default
 showScreen("home");
+renderHistory();
 
 // Printing: show summary only
 function triggerPrintSummary() {
