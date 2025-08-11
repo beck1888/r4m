@@ -19,6 +19,10 @@ Your task is to read and analyze the transcript, then output a Markdown-formatte
 
 // Add more key ideas as needed.
 
+## Key Quote(s)
+
+> (Add 1-2 key quotes from the transcript)
+
 ## Implications
 (Describe why this video matters in 5 thoughtful sentences. Focus on takeaways, relevance, or broader impact.)
 
