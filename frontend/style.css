@@ -136,7 +136,14 @@ hr {
 .md h1,
 .md h2,
 .md h3 {
+  display: block; /* Override global h1{display:none} so Markdown headings render */
   margin: 16px 0 8px;
+}
+
+/* Make top-level Markdown heading a bit larger */
+.md h1 {
+  font-size: 24px;
+  line-height: 1.25;
 }
 .md p {
   margin: 8px 0;
