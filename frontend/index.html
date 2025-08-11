@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>YouTube Summarizer Demo</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   </head>
   <body>
     <main class="container">
@@ -29,24 +30,39 @@
         <section id="screen-loading" class="screen hidden">
           <div class="loading-wrap">
             <p class="muted">Working on it. This can take a moment.</p>
-            <ul class="progress-list">
-              <li>
-                <span>1. Get video details</span>
-                <span id="spin-metadata" class="spinner" aria-hidden="true"></span>
-              </li>
-              <li>
-                <span>2. Extract video id</span>
-                <span id="spin-videoid" class="spinner" aria-hidden="true"></span>
-              </li>
-              <li>
-                <span>3. Fetch transcript</span>
-                <span id="spin-transcript" class="spinner" aria-hidden="true"></span>
-              </li>
-              <li>
-                <span>4. Summarize transcript</span>
-                <span id="spin-summary" class="spinner" aria-hidden="true"></span>
-              </li>
-            </ul>
+            
+            <!-- Lottie Animation Container -->
+            <div class="loading-animation">
+              <div id="lottie-container"></div>
+            </div>
+            
+            <!-- Collapsible Progress Container -->
+            <div class="progress-container">
+              <button id="progress-toggle" class="progress-toggle" type="button">
+                <span>Show Progress Details</span>
+                <span class="toggle-icon">▼</span>
+              </button>
+              <div id="progress-details" class="progress-details hidden">
+                <ul class="progress-list">
+                  <li>
+                    <span>1. Get video details</span>
+                    <span id="spin-metadata" class="spinner" aria-hidden="true"></span>
+                  </li>
+                  <li>
+                    <span>2. Extract video id</span>
+                    <span id="spin-videoid" class="spinner" aria-hidden="true"></span>
+                  </li>
+                  <li>
+                    <span>3. Fetch transcript</span>
+                    <span id="spin-transcript" class="spinner" aria-hidden="true"></span>
+                  </li>
+                  <li>
+                    <span>4. Summarize transcript</span>
+                    <span id="spin-summary" class="spinner" aria-hidden="true"></span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
 
