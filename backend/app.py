@@ -2,8 +2,9 @@
 # Project imports
 from backend_helpers.urls import extract_youtube_id
 from backend_helpers.youtube import fetch_transcript, get_yt_video_metadata
+from backend_helpers.ai import summarize_transcript_with_openai_gpt
 # External dependencies
-from flask import Flask, request, jsonify # Web Server
+from flask import Flask, request, jsonify, abort # Web Server
 
 ## Flask and endpoints
 # Create flask app
@@ -64,6 +65,23 @@ def fetch_youtube_video_transcript():
     
     # Success, return transcript
     return jsonify(transcript=transcript), 200
+
+# Endpoint for summarizing the video
+@app.post("/summarize-video")
+def do_summarize():
+    # Parse input
+    data = request.get_json()
+    transcript = data.get("transcript")
+    channel_uploader = data.get("channel_uploader")
+
+    # Verify params were passed
+    if not transcript or not channel_uploader:
+        return jsonify(error="Both transcript and channel_uploader are required"), 400
+
+    # Do your summarization
+    summary = summarize_transcript_with_openai_gpt(transcript=transcript, channel_name=channel_uploader)
+
+    return jsonify(summary=summary)
 
 ## Run the dev server
 if __name__ == "__main__":
