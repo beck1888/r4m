@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YouTube Summarizer Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>YouTube Summarizer</h1>
+
+      <form id="url-form">
+        <label for="url-input">YouTube URL</label>
+        <input id="url-input" name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." required />
+        <button id="run-btn" type="submit">Run</button>
+      </form>
+
+      <section class="status" id="status"></section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Video Details</h2>
+          <pre id="metadata" class="pre"></pre>
+        </div>
+        <div class="card">
+          <h2>Video ID</h2>
+          <code id="video-id" class="code"></code>
+        </div>
+        <div class="card">
+          <h2>Transcript</h2>
+          <pre id="transcript" class="pre"></pre>
+        </div>
+        <div class="card">
+          <h2>Summary</h2>
+          <pre id="summary" class="pre"></pre>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

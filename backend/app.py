@@ -4,11 +4,18 @@ from backend_helpers.urls import extract_youtube_id
 from backend_helpers.youtube import fetch_transcript, get_yt_video_metadata
 from backend_helpers.ai import summarize_transcript_with_openai_gpt
 # External dependencies
-from flask import Flask, request, jsonify, abort # Web Server
+from flask import Flask, request, jsonify # Web Server
+from flask_cors import CORS
 
 ## Flask and endpoints
 # Create flask app
 app = Flask(__name__)
+CORS(
+    app,
+    origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
 
 # Endpoint for getting a video's ID
 @app.get("/get-video-id")
