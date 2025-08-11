@@ -317,6 +317,18 @@ button:disabled {
 }
 
 @media print {
+  /* Ensure the printed page background is pure white */
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  /* Keep consistent color rendering across browsers when printing */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   body * {
     visibility: hidden !important;
   }
