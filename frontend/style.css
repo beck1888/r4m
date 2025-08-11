@@ -268,18 +268,6 @@ hr {
   position: relative;
 }
 
-.spinner.done::after {
-  content: "✓";
-  color: white;
-  font-size: 8px;
-  font-weight: bold;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  line-height: 1;
-}
-
 .spinner.error {
   animation: none;
   background: var(--error);
